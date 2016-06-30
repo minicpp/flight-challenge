@@ -6,15 +6,10 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.GridPoint2;
-import com.badlogic.gdx.math.Rectangle;
 
 public class GameMain extends ApplicationAdapter {
 	
@@ -25,36 +20,46 @@ public class GameMain extends ApplicationAdapter {
 	
 	private BitmapFont font;
 	private ForegroundMap foregroundMap;
-	private boolean gameStart;
+	
 	
 	private Background background;
 	private Player player;
+	
 	private int score;
 	private int highestScore;
+	private boolean gameStart;
 	
 	@Override
 	public void create () {
-		batch = new SpriteBatch();
-		
-		
+		batch = new SpriteBatch();		
 		font = new BitmapFont(); 
-		font.setColor(0,0,0, 1);
 		font.getRegion().getTexture().setFilter(TextureFilter.Linear,
 				TextureFilter.Linear);
 		
-		//set camera
 		width = Gdx.graphics.getWidth();
         height = Gdx.graphics.getHeight();
-        background = new Background(batch, (int)width, (int)height);
-        player = new Player(this);
-        foregroundMap = new ForegroundMap(batch, (int)width, (int)height);
         
-        System.out.println("width="+width+", height="+height + ", OpenGL version:"
-        		+Gdx.graphics.getGLVersion().getMajorVersion());
+        System.out.println("screen width="+width+", screen height="+height);
+        
+        
+        background = new Background(this);
+        player = new Player(this);
+        foregroundMap = new ForegroundMap(this);
+        
+        //set camera
 		camera = new OrthographicCamera(width, height);
 		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
 		camera.update();
+		
+		score = 0;
 		gameStart = false;
+	}
+	
+	private void init(){
+		score = 0;
+		gameStart = false;
+		player.init();
+		foregroundMap.init();
 	}
 	
 	public void update(){
@@ -71,6 +76,7 @@ public class GameMain extends ApplicationAdapter {
 				gameStart = true;
 		}
 		
+		
 		this.background.update();
 		this.player.update();
 		if(gameStart){
@@ -78,6 +84,12 @@ public class GameMain extends ApplicationAdapter {
 			if(foregroundMap.isMissionAccomplished() == false && !player.isDead()){
 				score = foregroundMap.getScrolledDistance();
 				highestScore = score > highestScore? score: highestScore;
+			}
+			else if(player.isGameOver() ||  foregroundMap.isMissionAccomplished()){
+				if (Gdx.input.isKeyPressed(Input.Keys.R)){
+					init();
+					gameStart = true;
+				}
 			}
 		}
 	}
@@ -92,7 +104,7 @@ public class GameMain extends ApplicationAdapter {
 	public void drawScore(){
 		font.getData().setScale(1.5f);
 		font.setColor(Color.FOREST);
-		font.draw(batch, "Score: "+this.score, 20, 20);
+		font.draw(batch, "Scores: "+this.score, 20, 20);
 	}
 	
 
@@ -144,6 +156,8 @@ public class GameMain extends ApplicationAdapter {
 		if(!player.isDead())
 			foregroundMap.drawCollision(camera);
 	}
+	
+	
 	
 	
 	@Override

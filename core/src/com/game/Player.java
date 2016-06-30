@@ -14,24 +14,27 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.GridPoint2;
 
 public class Player {
-	Animation animation;
-	Texture image;
-	TextureRegion[] frames;
-	Pixmap[] pixmapFrames;
+	
+	private final float gravitySpeed = 4.0f;
+	private final float playerWidth = 140;
+	private final float playerHeight = 35;
+	
+	
+	private Animation animation;
+	private Texture image;
+	private TextureRegion[] frames;
+	private Pixmap[] pixmapFrames;
+	
 	private ParticleEffect explosion;
 	private TextureRegion explosionRegion;
 	private FrameBuffer fbo;
-	float posX;
-	float posY;
-	float playerWidth = 140;
-	float playerHeight = 35;
-	GameMain game;
-
-	float gravitySpeed = 5.0f;
-
-	int deadState;
-
-	float stateTime;
+		
+	private float posX;
+	private float posY;
+	private int deadState;
+	private float stateTime;
+	
+	private GameMain game;
 
 	public float getPosX() {
 		return posX;
@@ -52,6 +55,8 @@ public class Player {
 		}
 	}
 	
+	
+	
 	public boolean isDead(){
 		return (deadState > 0);
 	}
@@ -62,11 +67,11 @@ public class Player {
 
 	public Player(GameMain game) {
 		this.game = game;
-		fbo = new FrameBuffer(Format.RGBA8888, (int) game.width, (int) game.height, false);
-
-		explosion = new ParticleEffect();
-		explosion.load(Gdx.files.internal("explosion.p"), Gdx.files.internal(""));
 		this.deadState = 0;
+		posX = 100f;
+		posY = game.height / 2;
+		
+		//set chopper animation
 		image = new Texture("chopper.png");
 		Pixmap pixmapImage = new Pixmap(Gdx.files.internal("chopper.png"));
 		this.pixmapFrames = new Pixmap[3];
@@ -78,16 +83,26 @@ public class Player {
 			pixmapFrames[i].drawPixmap(pixmapImage, 0, 0, frames[i].getRegionX(), frames[i].getRegionY(),
 					frames[i].getRegionWidth(), frames[i].getRegionHeight());
 		}
+		pixmapImage.dispose();
 		animation = new Animation(0.2f, frames);
 		animation.setPlayMode(PlayMode.LOOP);
 		stateTime = 0;
-
-		posX = 100f;
-		posY = game.height / 2;
-		pixmapImage.dispose();
-
+		
+		//set explosion particles
+		fbo = new FrameBuffer(Format.RGBA8888, (int) game.width, (int) game.height, false);
+		explosion = new ParticleEffect();
+		explosion.load(Gdx.files.internal("explosion.p"), Gdx.files.internal(""));
 		explosionRegion = new TextureRegion(fbo.getColorBufferTexture());
 		explosionRegion.flip(false, true);
+		
+	}
+	
+	public void init(){
+		if(deadState > 0){
+			posX = 100f;
+			posY = game.height / 2;
+			deadState = 0;
+		}
 	}
 
 	public void update() {

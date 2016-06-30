@@ -6,7 +6,6 @@ import java.util.List;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.GridPoint2;
@@ -15,32 +14,39 @@ public class ForegroundMap {
 	private List<MapItem> mapList;
 
 	private static int MAX_FILE_SIZE = 64;
-	private int screenHeight;
-	private int screenWidth;
 
 	private float mapScrollSpeed = 2.0f;
 	private float scrolledDistance;
 
 	private ShapeRenderer shapeRenderer;
 	private List<GridPoint2> pointList;
+	
+	private GameMain game;
 
-	SpriteBatch spriteBatch;
 
-	public ForegroundMap(SpriteBatch spriteBatch, int screenWidth, int screenHeight) {
+	public ForegroundMap(GameMain game) {
+		this.game = game;
 		mapList = new ArrayList<MapItem>();
-		this.screenWidth = screenWidth;
-		this.screenHeight = screenHeight;
-		this.spriteBatch = spriteBatch;
 		shapeRenderer = new ShapeRenderer();
 		pointList = new ArrayList<GridPoint2>();
 		loadMapFile();
+	}
+	
+	public void init(){
+		scrolledDistance = 0;
+		MapItem prevItem = null;
+		for(int i=0; i<mapList.size(); ++i){
+			MapItem item = mapList.get(i);
+			item.init((int)game.height, game.width, prevItem);
+			prevItem = item;
+		}
 	}
 
 	private void loadMapFile() {
 		MapItem prevItem = null;
 		for (int i = 0; i < MAX_FILE_SIZE; ++i) {
 			String filename = "map" + i + ".png";
-			MapItem item = MapItem.createMapItem(filename, screenHeight, screenWidth, prevItem);
+			MapItem item = MapItem.createMapItem(filename, (int)game.height, game.width, prevItem);
 			if (item == null)
 				break;
 			mapList.add(item);
@@ -70,7 +76,7 @@ public class ForegroundMap {
 
 	public void draw() {
 		for (MapItem m : mapList) {
-			m.draw(this.spriteBatch, screenWidth);
+			m.draw(this.game.batch, (int)this.game.width);
 		}
 	}
 

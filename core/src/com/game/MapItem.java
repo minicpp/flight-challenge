@@ -41,6 +41,15 @@ public class MapItem {
 		posX -= speed;
 	}
 	
+	public void init(int screenHeight, float offset, MapItem prevMapItem){
+		if(prevMapItem == null){
+			this.posX = offset;
+		}
+		else{
+			this.posX = prevMapItem.posX + prevMapItem.map.getWidth();
+		}
+	}
+	
 	public static MapItem createMapItem(String filename, int screenHeight, float offset, MapItem prevMapItem) {
 		
 		FileHandle file = Gdx.files.external(filename);
@@ -48,7 +57,7 @@ public class MapItem {
 			// try to load from internal folder
 			file = Gdx.files.internal(filename);
 			if (file == null || file.isDirectory() || !file.exists()) {
-				System.out.println("Cannot open the file " + filename + ". I assume it is the end of the map file.");
+				System.out.println("The system assumes the file "+filename+" is the end of the map file.");
 				return null;
 			}
 		}
@@ -56,12 +65,7 @@ public class MapItem {
 		// load the map file into the memory of the computer
 		MapItem item = new MapItem(screenHeight);
 		item.createPixmap(file);
-		if(prevMapItem == null){
-			item.posX = offset;
-		}
-		else{
-			item.posX = prevMapItem.posX + prevMapItem.map.getWidth();
-		}
+		item.init(screenHeight, offset, prevMapItem);
 		return item;
 	}
 
@@ -77,7 +81,7 @@ public class MapItem {
 		map.drawPixmap(pixmapSrc, 0, 0, pixmapSrc.getWidth(), pixmapSrc.getHeight(),
 				0, 0, (int) dstWidth, screenHeight);
 		map.setColor(1.0f, 1.0f, 1.0f, 0.0f);
-		int r,g,b,a;
+		int r,g,b;
 		for (int y = 0; y < map.getHeight(); ++y) {
 			for (int x = 0; x < map.getWidth(); ++x) {
 				int color = map.getPixel(x, y);
