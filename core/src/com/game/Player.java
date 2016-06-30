@@ -39,7 +39,6 @@ public class Player {
 	private GameMain game;
 	
 	private Sound blastSound;
-	private long blastSoundID;
 
 	public float getPosX() {
 		return posX;
@@ -57,7 +56,7 @@ public class Player {
 		if (this.explosion.isComplete()) {
 			this.explosion.start();
 			deadState = 1;
-			blastSoundID = blastSound.play();
+			blastSound.play();
 		}
 	}
 	
