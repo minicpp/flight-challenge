@@ -9,8 +9,8 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		// $
 		config.title = "Flight Challenge Game";
-		config.width = 800;
-		config.height = 480;
+		config.width = 1400;
+		config.height = 512;
 		// #
 		new LwjglApplication(new GameMain(), config);
 	}

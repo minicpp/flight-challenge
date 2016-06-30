@@ -3,6 +3,7 @@ package com.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -21,6 +22,10 @@ public class GameMain extends ApplicationAdapter {
 	private BitmapFont font;
 	private ForegroundMap foregroundMap;
 	
+	private Sound backgroundMusic;
+	private long backgroundMusicId;
+	private float backgroundVolume;
+	
 	
 	private Background background;
 	private Player player;
@@ -35,6 +40,11 @@ public class GameMain extends ApplicationAdapter {
 		font = new BitmapFont(); 
 		font.getRegion().getTexture().setFilter(TextureFilter.Linear,
 				TextureFilter.Linear);
+		
+		backgroundMusic = Gdx.audio.newSound(Gdx.files.internal("bgmusic.ogg"));
+		backgroundMusicId = backgroundMusic.loop();
+		backgroundVolume = 1.0f;
+		backgroundMusic.setVolume(backgroundMusicId, backgroundVolume);
 		
 		width = Gdx.graphics.getWidth();
         height = Gdx.graphics.getHeight();
@@ -67,8 +77,11 @@ public class GameMain extends ApplicationAdapter {
 		if (!player.isDead()) {
 			GridPoint2 point = this.foregroundMap.testCollision(player);
 
-			if (point != null)
+			if (point != null){
 				this.player.setToDead(point);
+				backgroundVolume = 0.1f;
+				backgroundMusic.setVolume(backgroundMusicId, backgroundVolume);
+			}
 		}
 		
 		if(!gameStart){
@@ -86,6 +99,10 @@ public class GameMain extends ApplicationAdapter {
 				highestScore = score > highestScore? score: highestScore;
 			}
 			else if(player.isGameOver() ||  foregroundMap.isMissionAccomplished()){
+				if(backgroundVolume == 0.1f){
+					backgroundVolume = 1.0f;
+					backgroundMusic.setVolume(backgroundMusicId, backgroundVolume);
+				}
 				if (Gdx.input.isKeyPressed(Input.Keys.R)){
 					init();
 					gameStart = true;
@@ -166,5 +183,6 @@ public class GameMain extends ApplicationAdapter {
 		background.dispose();
 		player.dispose();
 		foregroundMap.dispose();
+		backgroundMusic.dispose();
 	}
 }

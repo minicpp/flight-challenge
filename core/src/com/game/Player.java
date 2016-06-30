@@ -2,6 +2,7 @@ package com.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
@@ -18,6 +19,7 @@ public class Player {
 	private final float gravitySpeed = 4.0f;
 	private final float playerWidth = 140;
 	private final float playerHeight = 35;
+	private final float chopperSpeed = 2.0f;
 	
 	
 	private Animation animation;
@@ -35,6 +37,9 @@ public class Player {
 	private float stateTime;
 	
 	private GameMain game;
+	
+	private Sound blastSound;
+	private long blastSoundID;
 
 	public float getPosX() {
 		return posX;
@@ -52,6 +57,7 @@ public class Player {
 		if (this.explosion.isComplete()) {
 			this.explosion.start();
 			deadState = 1;
+			blastSoundID = blastSound.play();
 		}
 	}
 	
@@ -95,6 +101,8 @@ public class Player {
 		explosionRegion = new TextureRegion(fbo.getColorBufferTexture());
 		explosionRegion.flip(false, true);
 		
+		blastSound = Gdx.audio.newSound(Gdx.files.internal("blast.wav"));
+		
 	}
 	
 	public void init(){
@@ -115,14 +123,14 @@ public class Player {
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-			posY += 2.0f;
+			posY += chopperSpeed;
 		} else {
 			posY -= this.gravitySpeed;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.LEFT))
-			posX -= 2.0f;
+			posX -= chopperSpeed;
 		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-			posX += 2.0f;
+			posX += chopperSpeed;
 		
 		//keep player in screen
 		if (posY < 0) {
@@ -171,5 +179,6 @@ public class Player {
 		}
 		this.fbo.dispose();
 		this.explosion.dispose();
+		blastSound.dispose();
 	}
 }
