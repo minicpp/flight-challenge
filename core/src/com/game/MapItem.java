@@ -16,9 +16,9 @@ public class MapItem {
 	private int screenHeight;
 	private float posX;
 	
-	public boolean isMapEnd(int width){
+	public boolean isMapEnd(){
 		
-		if(posX + width < 0 )
+		if(posX + map.getWidth() < 0 )
 			return true;
 		return false;
 	}
@@ -77,11 +77,21 @@ public class MapItem {
 		map.drawPixmap(pixmapSrc, 0, 0, pixmapSrc.getWidth(), pixmapSrc.getHeight(),
 				0, 0, (int) dstWidth, screenHeight);
 		map.setColor(1.0f, 1.0f, 1.0f, 0.0f);
+		int r,g,b,a;
 		for (int y = 0; y < map.getHeight(); ++y) {
 			for (int x = 0; x < map.getWidth(); ++x) {
 				int color = map.getPixel(x, y);
 				if (color == 0xFFFFFFFF)
 					map.drawPixel(x, y);
+				else
+				{	//detect if the color is very near to the white color.
+					r = (color)>>>24;
+					g = (color&0x00FF0000)>>>16;
+					b = (color&0x0000FF00)>>>8;
+					if(r * g * b >= Math.pow(235, 3)){ //0xC5C10000 = 240^4
+						map.drawPixel(x, y);
+					}
+				}
 			}
 		}
 		this.texture = new Texture(map);
