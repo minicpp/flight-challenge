@@ -143,36 +143,25 @@ public class ForegroundMap {
 		int worldPosBottom = Math.max(bottom1, bottom2);
 
 		left1 = worldPosLeft - posX1;
-		right1 = worldPosLeft - posX1;
-		top1 = worldPosTop - posY1;
 		bottom1 = worldPosBottom - posY1;
 
 		left2 = worldPosLeft - posX2;
-		right2 = worldPosLeft - posX2;
-		top2 = worldPosTop - posY2;
 		bottom2 = worldPosBottom - posY2;
 
 		int rangeX = worldPosRight - worldPosLeft;
 		int rangeY = worldPosTop - worldPosBottom;
 		int color1 = 0, color2 = 0;
-		int color = 0;
 		int objY1 = 0, objY2 = 0;
 		for (int y = 0; y <= rangeY; ++y) {
 			objY1 = object1.getHeight() - 1 - bottom1 - y;
 			objY2 = object2.getHeight() - 1 - bottom2 - y;
 			for (int x = 0; x <= rangeX; ++x) {
-				color1 = object1.getPixel(left1 + x, objY1);
-				color2 = object2.getPixel(left2 + x, objY2);
-				color1 &= 0xFF;
-				color2 &= 0xFF;
-				color = color1 & color2;
-				if (color == 0xFF) {
+				color1 = object1.getPixel(left1 + x, objY1) & 0xFF;
+				color2 = object2.getPixel(left2 + x, objY2) & 0xFF;
+				if ((color1 & color2) == 0xFF) {
 					// detected a collision
-					int worldX = worldPosLeft + x;
-					int worldY = worldPosBottom + y;
-					// System.out.println("worldX="+worldX+";worldY="+worldY);
 					if (pointList != null) {
-						pointList.add(new GridPoint2(worldX, worldY));
+						pointList.add(new GridPoint2(worldPosLeft + x, worldPosBottom + y));
 					}
 				}
 			}
