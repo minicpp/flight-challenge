@@ -30,7 +30,9 @@ public class Player {
 	private ParticleEffect explosion;
 	private TextureRegion explosionRegion;
 	private FrameBuffer fbo;
-		
+	
+	private ParticleEffect smoke;
+	
 	private float posX;
 	private float posY;
 	private int deadState;
@@ -100,8 +102,19 @@ public class Player {
 		explosionRegion = new TextureRegion(fbo.getColorBufferTexture());
 		explosionRegion.flip(false, true);
 		
+		//set smoke
+		smoke = new ParticleEffect();
+		smoke.load(Gdx.files.internal("smoke.p"),Gdx.files.internal(""));
+		updateSmokePosition();
+		smoke.start();
+		
 		blastSound = Gdx.audio.newSound(Gdx.files.internal("blast.wav"));
 		
+	}
+	
+	//smoke
+	public void updateSmokePosition(){
+		smoke.setPosition(this.posX, this.posY + this.playerHeight/2);
 	}
 	
 	public void init(){
@@ -110,12 +123,19 @@ public class Player {
 			posY = game.height / 2;
 			deadState = 0;
 		}
+		
+		//set smoke
+		updateSmokePosition();
+		smoke.start();
 	}
 
 	public void update() {
 		stateTime += Gdx.graphics.getDeltaTime();
 
 		if (deadState > 0){
+			//end smoke
+			smoke.allowCompletion();
+			//begin explosion
 			if(explosion.isComplete() && deadState == 1)
 				deadState = 2;
 			return;
@@ -142,6 +162,8 @@ public class Player {
 		if(posX > game.width - this.playerWidth)
 			posX = game.width - this.playerWidth;
 		
+		//update position
+		updateSmokePosition();
 	}
 
 	public Pixmap getPixmap() {
@@ -154,19 +176,22 @@ public class Player {
 			TextureRegion currentFrame = animation.getKeyFrame(stateTime);
 			game.batch.draw(currentFrame, posX, posY);
 		}
-		if (!explosion.isComplete() && deadState == 1)
-			game.batch.draw(explosionRegion, 0, 0);
+		//for drawing smoke comment the following
+		//if (!explosion.isComplete() && deadState == 1)
+		game.batch.draw(explosionRegion, 0, 0);
 	}
 
 	public void preDrawExplosion() {
-		if (explosion.isComplete())
-			return;
+		//for drawing smoke comment the following
+		//if (explosion.isComplete())
+			//return;
 		fbo.begin();
 		Gdx.gl.glClearColor(0, 0, 0, 0.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		game.batch.setProjectionMatrix(game.camera.combined);
 		game.batch.begin();
 		explosion.draw(game.batch, Gdx.graphics.getDeltaTime());
+		smoke.draw(game.batch, Gdx.graphics.getDeltaTime());
 		game.batch.end();
 		fbo.end();
 	}
@@ -178,6 +203,8 @@ public class Player {
 		}
 		this.fbo.dispose();
 		this.explosion.dispose();
+		//smoke add
+		this.smoke.dispose();
 		blastSound.dispose();
 	}
 }
